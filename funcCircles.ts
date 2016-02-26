@@ -8,7 +8,7 @@
 declare module _ {
   //_.drop
   //interface LoDashStatic {
-  interface R {
+  interface RTy {
     /**
      * Creates a slice of array with n elements dropped from the beginning.
      *
@@ -20,18 +20,58 @@ declare module _ {
     take<T>(n:number, array:T[]): T[];
   }
 
-  //, interface lodash {
-  //
-  //}
+  interface lodashTy {
+    //curry<T1, R>(func: (t1: T1) => R):
+    //  CurriedFunction1<T1, R>;
+    curry<T1, T2, R>(func: (t1: T1, t2: T2) => R):
+      CurriedFunction2<T1, T2, R>;
+    flatten<T>(array: List<T|T[]>): T[];
+  }
+
+  interface CurriedFunction1<T1, R> {
+    (): CurriedFunction1<T1, R>;
+    (t1: T1): R;
+  }
+
+  interface CurriedFunction2<T1, T2, R> {
+    (): CurriedFunction2<T1, T2, R>;
+    (t1: T1): CurriedFunction1<T2, R>;
+    (t1: T1, t2: T2): R;
+  }
+
+  interface List<T> {
+    [index: number]: T;
+    length: number;
+  }
 }
 
-declare var R: _.R;
+declare var R: _.RTy;
+//declare var lodash: _.lodashTy;
+declare var _: _.lodashTy;
 
 window.onload = function () {
+
   type WheelPos         = Array<number>;
   type WheelPosx        = number[];
   type WheelLoop        = Array<WheelPos>;
   type LoopsPermutation = Array<WheelPos>;
+  //type LoopsPermColumn  = [number, number, number];
+  type LoopsPermColumn  = Triple;
+
+  class Triple {
+    //a: number;
+    //b: number;
+    //c: number;
+    result: number;
+
+    constructor (a: number, b: number, c: number) {
+      this.result = a + b + c;
+    }
+  }
+
+  function Triple2 (a,b,c) {
+    return
+  }
 
   var wheelPos1:WheelPos    = [1, 2, 3];
   var wheelPos2:WheelPos    = [4, 5, 6];
@@ -94,31 +134,28 @@ window.onload = function () {
   }
 
   function threeLoopPerms (first: WheelPos, secLoop: WheelLoop, thrLoop: WheelLoop): Array<LoopsPermutation> {
-  //function threeLoopPerms (first: WheelPos, secLoop: WheelLoop, thrLoop: WheelLoop) {
-  //  function addPosToTwoWheelPerms () {
-  //
-  //    return perms;
-  //  }
+    // CURRIED - works with typescript definition
+    var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPerms(first, secLoop));
 
-    var perms = twoWheelPerms(first, secLoop);
-    //var curry1 = _.curry(appendTwoWheelPerms);
-    //var appendTwoWheelPermsCurry = curry1(perms);
+    // AS A CLOSURE
+    function addPosToTwoWheelPerms2 (thrPos: WheelPos): Array<LoopsPermutation> {
+      return appendTwoWheelPerms(twoWheelPerms(first, secLoop), thrPos);
+    }
 
-    var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(perms);
+    //return _.flatten(thrLoop.map(addPosToTwoWheelPerms));
+    return _.flatten(thrLoop.map(addPosToTwoWheelPerms2));
 
-    COULD DO AS A CLOSURE
-
-    //: Array<LoopsPermutation> = ;
-
-
-    //return thrLoop.map(addPosToTwoWheelPerms).concat([]);
-    //return thrLoop.map(addPosToTwoWheelPerms);
-    //return thrLoop.map(appendTwoWheelPermsCurry);
-    //return thrLoop.map(appendTwoWheelPermsCurry).concat([]);
-    return _.flatten(thrLoop.map(addPosToTwoWheelPerms));
+    // NOTE: why flatten instead of concat
   }
 
   var perms3 = threeLoopPerms(wheelPos1, secLoop, thrLoop);
+
+  function sumTriple (permCol: LoopsPermColumn): number {
+  //  var [a, b, c] = permCol;
+  //
+  //  return a + b + c;
+    return permCol.result;
+  }
 
   var i = 2;
 };
