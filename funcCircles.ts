@@ -18,6 +18,8 @@ declare module _ {
      */
     drop<T>(n:number, array:T[]): T[];
     take<T>(n:number, array:T[]): T[];
+    head<T>(array: List<T>): T;
+    compose<V0, V1, T1>(fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T1;
   }
 
   interface lodashTy {
@@ -26,6 +28,15 @@ declare module _ {
     curry<T1, T2, R>(func: (t1: T1, t2: T2) => R):
       CurriedFunction2<T1, T2, R>;
     flatten<T>(array: List<T|T[]>): T[];
+    head<T>(array: List<T>): T;
+    //zip<T>(...arrays: List<T>[]): T[][][];
+  }
+
+  interface LoDashImplicitArrayWrapper<T> {
+    /**
+     * @see _.zip
+     */
+    //zip<T>(...arrays: List<T>[]): _.LoDashImplicitArrayWrapper<T[]>;
   }
 
   interface CurriedFunction1<T1, R> {
@@ -55,8 +66,8 @@ window.onload = function () {
   type WheelPosx        = number[];
   type WheelLoop        = Array<WheelPos>;
   type LoopsPermutation = Array<WheelPos>;
-  //type LoopsPermColumn  = [number, number, number];
-  type LoopsPermColumn  = Triple;
+  type LoopsPermColumn  = [number, number, number];
+  //type LoopsPermColumn  = Triple;
 
   class Triple {
     //a: number;
@@ -69,8 +80,12 @@ window.onload = function () {
     }
   }
 
-  function Triple2 (a,b,c) {
-    return
+  function Triple2 (a: number, b: number, c: number) {
+    this.result = a + b + c;
+
+    this.result = function ():number {
+      return this.result;
+    }
   }
 
   var wheelPos1:WheelPos    = [1, 2, 3];
@@ -150,12 +165,31 @@ window.onload = function () {
 
   var perms3 = threeLoopPerms(wheelPos1, secLoop, thrLoop);
 
-  function sumTriple (permCol: LoopsPermColumn): number {
-  //  var [a, b, c] = permCol;
-  //
-  //  return a + b + c;
-    return permCol.result;
+  function sumColumn ([a, b, c]: LoopsPermColumn): number {
+  //function sumColumn (permCol: LoopsPermColumn): number {
+    // return for tuple type
+    //var [a, b, c] = permCol;
+    return a + b + c;
+
+    // return for class type
+    //return permCol.result;
   }
+
+  function columnsFromPermutation (perm: LoopsPermutation): Array<LoopsPermColumn> {
+    var firstPos = R.head(perm);
+    var secPos = R.head(R.drop(1, perm));
+    var thrPos = R.head(R.drop(2, perm));
+
+    var getSpecificPos = R.compose(R.head, R.drop);
+
+    var testPos = getSpecificPos(1, perm);
+
+    var zip3 = _.zip(firstPos, secPos, thrPos);
+
+    return zip3;
+  }
+
+  var c = columnsFromPermutation(perms3[0]);
 
   var i = 2;
 };
