@@ -31,6 +31,7 @@ declare module _ {
     flatten<T>(array: List<T|T[]>): T[];
     head<T>(array: List<T>): T;
     zip<T>(...arrays: List<T>[]): T[][];
+    isEqual(value: any, other: any): boolean;
   }
 
   interface LoDashImplicitArrayWrapper<T> {
@@ -154,12 +155,14 @@ window.onload = function () {
   }
 
   function threeLoopPerms (first: WheelPos, secLoop: WheelLoop, thrLoop: WheelLoop): Array<LoopsPermutation> {
+    var twoWheelPermsLocal = twoWheelPerms(first, secLoop);
+
     // CURRIED - works with typescript definition
-    var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPerms(first, secLoop));
+    var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPermsLocal);
 
     // AS A CLOSURE
     function addPosToTwoWheelPerms2 (thrPos: WheelPos): Array<LoopsPermutation> {
-      return appendTwoWheelPerms(twoWheelPerms(first, secLoop), thrPos);
+      return appendTwoWheelPerms(twoWheelPermsLocal, thrPos);
     }
 
     //return _.flatten(thrLoop.map(addPosToTwoWheelPerms));
@@ -227,6 +230,29 @@ window.onload = function () {
 
   var a:Array<[LoopsPermAnswers, LoopsPermutation]> =
           answersPlusPerm(wheelPos1, secLoop, thrLoop);
+
+  function findSpecificAnswer (first: WheelPos, secLoop: WheelLoop,
+                                thrLoop: WheelLoop, answersLoop: WheelLoop):
+                                  Array<[LoopsPermAnswers, LoopsPermutation]> {
+    var candidates:Array<[LoopsPermAnswers, LoopsPermutation]> =
+                  answersPlusPerm(first, secLoop, thrLoop);
+
+    //function chk (a:[LoopsPermAnswers, LoopsPermutation]): boolean {
+    function chk ([ans, lists]:[LoopsPermAnswers, LoopsPermutation]): boolean {
+      //var [ans, lists] = a;
+
+      // this code has no side effects, such as changing a var in a closure
+      var results:Array<WheelPos> = answersLoop.filter( val => _.isEqual(ans, val) );
+
+      return results.length > 0;
+    }
+
+    var matches:Array<[LoopsPermAnswers, LoopsPermutation]> = candidates.filter(chk);
+
+    return matches;
+  }
+
+  var f = findSpecificAnswer(wheelPos1, secLoop, thrLoop, ansLoop);
 
   var i = 2;
 };
