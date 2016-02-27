@@ -204,25 +204,26 @@ window.onload = function () {
 
   var c = columnsFromPermutation(perms3[0]);
 
-  function sumPlusTest (perm: LoopsPermutation): LoopsPermAnswers {
+  function sumPlusTest (perm: LoopsPermutation):
+                          Array<[LoopsPermAnswers]> {
     //var cols:Array<LoopsPermColumn> = columnsFromPermutation(perms3[0]);
     var cols:Array<LoopsPermColumn> = columnsFromPermutation(perm);
 
-    return cols.map(sumColumn);
+    return [[cols.map(sumColumn)]];
   }
 
   var s = sumPlusTest(perms3[0]);
 
   function answersPlusTest (first: WheelPos, secLoop: WheelLoop,
-                              thrLoop: WheelLoop): Array<LoopsPermAnswers> {
+                              thrLoop: WheelLoop): Array<[LoopsPermAnswers]> {
     var perms3 = threeLoopPerms(first, secLoop, thrLoop);
 
-    var s:Array<LoopsPermAnswers> = perms3.map(sumPlusTest);
+    var s:Array<[LoopsPermAnswers]> = _.flatten(perms3.map(sumPlusTest));
 
     return s;
   }
 
-  var a:Array<LoopsPermAnswers> = answersPlusTest(wheelPos1, secLoop, thrLoop);
+  var a:Array<[LoopsPermAnswers]> = answersPlusTest(wheelPos1, secLoop, thrLoop);
 
   var i = 2;
 };
