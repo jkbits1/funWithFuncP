@@ -204,26 +204,29 @@ window.onload = function () {
 
   var c = columnsFromPermutation(perms3[0]);
 
-  function sumPlusTest (perm: LoopsPermutation):
-                          Array<[LoopsPermAnswers]> {
+  function sumPlusPerm (perm: LoopsPermutation):
+                          Array<[LoopsPermAnswers, LoopsPermutation]> {
     //var cols:Array<LoopsPermColumn> = columnsFromPermutation(perms3[0]);
     var cols:Array<LoopsPermColumn> = columnsFromPermutation(perm);
 
-    return [[cols.map(sumColumn)]];
+    return [[cols.map(sumColumn), perm]];
   }
 
-  var s = sumPlusTest(perms3[0]);
+  var s = sumPlusPerm(perms3[0]);
 
-  function answersPlusTest (first: WheelPos, secLoop: WheelLoop,
-                              thrLoop: WheelLoop): Array<[LoopsPermAnswers]> {
+  function answersPlusPerm (first: WheelPos, secLoop: WheelLoop,
+                              thrLoop: WheelLoop):
+                                  Array<[LoopsPermAnswers, LoopsPermutation]> {
     var perms3 = threeLoopPerms(first, secLoop, thrLoop);
 
-    var s:Array<[LoopsPermAnswers]> = _.flatten(perms3.map(sumPlusTest));
+    var s:Array<[LoopsPermAnswers, LoopsPermutation]> =
+            _.flatten(perms3.map(sumPlusPerm));
 
     return s;
   }
 
-  var a:Array<[LoopsPermAnswers]> = answersPlusTest(wheelPos1, secLoop, thrLoop);
+  var a:Array<[LoopsPermAnswers, LoopsPermutation]> =
+          answersPlusPerm(wheelPos1, secLoop, thrLoop);
 
   var i = 2;
 };
