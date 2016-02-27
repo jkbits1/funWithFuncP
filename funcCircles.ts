@@ -19,7 +19,8 @@ declare module _ {
     drop<T>(n:number, array:T[]): T[];
     take<T>(n:number, array:T[]): T[];
     head<T>(array: List<T>): T;
-    compose<V0, V1, T1>(fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T1;
+    //compose<V0, V1, T1>(fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T1;
+    //compose<V0, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T2;
   }
 
   interface lodashTy {
@@ -29,7 +30,7 @@ declare module _ {
       CurriedFunction2<T1, T2, R>;
     flatten<T>(array: List<T|T[]>): T[];
     head<T>(array: List<T>): T;
-    //zip<T>(...arrays: List<T>[]): T[][][];
+    zip<T>(...arrays: List<T>[]): T[][];
   }
 
   interface LoDashImplicitArrayWrapper<T> {
@@ -62,12 +63,16 @@ declare var _: _.lodashTy;
 
 window.onload = function () {
 
+  interface Column extends Array<number> { 0: number, 1: number, 2: number}
+
   type WheelPos         = Array<number>;
   type WheelPosx        = number[];
   type WheelLoop        = Array<WheelPos>;
   type LoopsPermutation = Array<WheelPos>;
-  type LoopsPermColumn  = [number, number, number];
+  //type LoopsPermColumn  = [number, number, number];
+  type LoopsPermColumn  = Column;
   //type LoopsPermColumn  = Triple;
+  type LoopsPermAnswers = Array<number>;
 
   class Triple {
     //a: number;
@@ -175,7 +180,10 @@ window.onload = function () {
     //return permCol.result;
   }
 
-  function columnsFromPermutation (perm: LoopsPermutation): Array<LoopsPermColumn> {
+  function columnsFromPermutation (perm: LoopsPermutation):
+      Array<LoopsPermColumn> {
+      //Array<[number, number, number]> {
+      //Array<Column> {
     var firstPos = R.head(perm);
     var secPos = R.head(R.drop(1, perm));
     var thrPos = R.head(R.drop(2, perm));
@@ -184,12 +192,37 @@ window.onload = function () {
 
     var testPos = getSpecificPos(1, perm);
 
-    var zip3 = _.zip(firstPos, secPos, thrPos);
+    var zip3: Array<LoopsPermColumn> = _.zip(firstPos, secPos, thrPos);
+
+    //var zipRetVal = zip3.map(a => {
+    //  return [a[0], a[1], a[2]]
+    //});
 
     return zip3;
+    //return zipRetVal;
   }
 
   var c = columnsFromPermutation(perms3[0]);
+
+  function sumPlusTest (perm: LoopsPermutation): LoopsPermAnswers {
+    //var cols:Array<LoopsPermColumn> = columnsFromPermutation(perms3[0]);
+    var cols:Array<LoopsPermColumn> = columnsFromPermutation(perm);
+
+    return cols.map(sumColumn);
+  }
+
+  var s = sumPlusTest(perms3[0]);
+
+  function answersPlusTest (first: WheelPos, secLoop: WheelLoop,
+                              thrLoop: WheelLoop): Array<LoopsPermAnswers> {
+    var perms3 = threeLoopPerms(first, secLoop, thrLoop);
+
+    var s:Array<LoopsPermAnswers> = perms3.map(sumPlusTest);
+
+    return s;
+  }
+
+  var a:Array<LoopsPermAnswers> = answersPlusTest(wheelPos1, secLoop, thrLoop);
 
   var i = 2;
 };
