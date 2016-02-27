@@ -4,18 +4,8 @@
 
 "use strict";
 
-// taken from definitely typed lodash to get rid of ramda errors
 declare module _ {
-  //_.drop
-  //interface LoDashStatic {
-  interface RTy {
-    /**
-     * Creates a slice of array with n elements dropped from the beginning.
-     *
-     * @param array The array to query.
-     * @param n The number of elements to drop.
-     * @return Returns the slice of array.
-     */
+  interface RIf {
     drop<T>(n:number, array:T[]): T[];
     take<T>(n:number, array:T[]): T[];
     head<T>(array: List<T>): T;
@@ -23,22 +13,13 @@ declare module _ {
     //compose<V0, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T2;
   }
 
-  interface lodashTy {
-    //curry<T1, R>(func: (t1: T1) => R):
-    //  CurriedFunction1<T1, R>;
+  interface lodashIf {
     curry<T1, T2, R>(func: (t1: T1, t2: T2) => R):
       CurriedFunction2<T1, T2, R>;
     flatten<T>(array: List<T|T[]>): T[];
     head<T>(array: List<T>): T;
     zip<T>(...arrays: List<T>[]): T[][];
     isEqual(value: any, other: any): boolean;
-  }
-
-  interface LoDashImplicitArrayWrapper<T> {
-    /**
-     * @see _.zip
-     */
-    //zip<T>(...arrays: List<T>[]): _.LoDashImplicitArrayWrapper<T[]>;
   }
 
   interface CurriedFunction1<T1, R> {
@@ -58,9 +39,8 @@ declare module _ {
   }
 }
 
-declare var R: _.RTy;
-//declare var lodash: _.lodashTy;
-declare var _: _.lodashTy;
+declare var R: _.RIf;
+declare var _: _.lodashIf;
 
 window.onload = function () {
 
@@ -76,9 +56,6 @@ window.onload = function () {
   type LoopsPermAnswers = Array<number>;
 
   class Triple {
-    //a: number;
-    //b: number;
-    //c: number;
     result: number;
 
     constructor (a: number, b: number, c: number) {
@@ -106,23 +83,18 @@ window.onload = function () {
       return dropPart.concat(takePart);
   }
 
-  var turn1:WheelPos = turnWheel(wheelPos2, 1);
+  //var turn1:WheelPos = turnWheel(wheelPos2, 1);
 
   function getWheelLoop (positions: Array<WheelPos>, pos:WheelPos, count:number): WheelLoop {
-    switch (count) {
-      case 0:
-        return [pos].concat(positions);
-        break;
-      default:
-        return getWheelLoop([turnWheel(pos, count)].concat(positions),
-          pos, count - 1);
-        break;
+    if (count === 0) {
+      return [pos].concat(positions);
     }
+
+    return getWheelLoop([turnWheel(pos, count)].concat(positions), pos, count - 1);
   }
 
-  var loop = getWheelLoop([], wheelPos2, 0);
+  //var loop = getWheelLoop([], wheelPos2, 0);
 
-  // return WheelLoop
   function createWheelLoop (initialPos: WheelPos): WheelLoop {
     return getWheelLoop([], initialPos, initialPos.length - 1);
   }
@@ -131,23 +103,11 @@ window.onload = function () {
   var thrLoop: WheelLoop = createWheelLoop(wheelPos3);
   var ansLoop: WheelLoop = createWheelLoop(wheelPosAns);
 
-  // return List LoopsPermutation
   function twoWheelPerms (first: WheelPos, secLoop:WheelLoop): Array<LoopsPermutation> {
-
-    //function permItem (first, secPos) {
-    //  var item = [first].concat([secPos]);
-    //
-    //  return item;
-    //}
-
-    var perms = secLoop.map
-    (secPos => [first].concat([secPos]));
-    //(secPos => permItem(first, secPos));
-
-    return perms;
+    return secLoop.map(secPos => [first].concat([secPos]));
   }
 
-  var perms2 = twoWheelPerms(wheelPos1, secLoop);
+  //var perms2 = twoWheelPerms(wheelPos1, secLoop);
 
   function appendTwoWheelPerms (twoWheelPermsLocal: Array<LoopsPermutation>, thrPos: WheelPos) :Array<LoopsPermutation> {
 
@@ -157,10 +117,10 @@ window.onload = function () {
   function threeLoopPerms (first: WheelPos, secLoop: WheelLoop, thrLoop: WheelLoop): Array<LoopsPermutation> {
     var twoWheelPermsLocal = twoWheelPerms(first, secLoop);
 
-    // CURRIED - works with typescript definition
-    var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPermsLocal);
+    // AS CURRIED FUNCTION
+    // var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPermsLocal);
 
-    // AS A CLOSURE
+    // AS CLOSURE
     function addPosToTwoWheelPerms2 (thrPos: WheelPos): Array<LoopsPermutation> {
       return appendTwoWheelPerms(twoWheelPermsLocal, thrPos);
     }
@@ -171,61 +131,39 @@ window.onload = function () {
     // NOTE: why flatten instead of concat
   }
 
-  var perms3 = threeLoopPerms(wheelPos1, secLoop, thrLoop);
+  //var perms3 = threeLoopPerms(wheelPos1, secLoop, thrLoop);
 
   function sumColumn ([a, b, c]: LoopsPermColumn): number {
-  //function sumColumn (permCol: LoopsPermColumn): number {
-    // return for tuple type
-    //var [a, b, c] = permCol;
     return a + b + c;
-
-    // return for class type
-    //return permCol.result;
   }
 
-  function columnsFromPermutation (perm: LoopsPermutation):
-      Array<LoopsPermColumn> {
-      //Array<[number, number, number]> {
-      //Array<Column> {
+  function columnsFromPermutation (perm: LoopsPermutation): Array<LoopsPermColumn> {
     var firstPos = R.head(perm);
     var secPos = R.head(R.drop(1, perm));
     var thrPos = R.head(R.drop(2, perm));
 
     var getSpecificPos = R.compose(R.head, R.drop);
 
-    var testPos = getSpecificPos(1, perm);
-
-    var zip3: Array<LoopsPermColumn> = _.zip(firstPos, secPos, thrPos);
-
-    //var zipRetVal = zip3.map(a => {
-    //  return [a[0], a[1], a[2]]
-    //});
-
-    return zip3;
-    //return zipRetVal;
+    return _.zip(firstPos, secPos, thrPos);
   }
 
-  var c = columnsFromPermutation(perms3[0]);
+  //var c = columnsFromPermutation(perms3[0]);
 
   function sumPlusPerm (perm: LoopsPermutation):
                           Array<[LoopsPermAnswers, LoopsPermutation]> {
-    //var cols:Array<LoopsPermColumn> = columnsFromPermutation(perms3[0]);
     var cols:Array<LoopsPermColumn> = columnsFromPermutation(perm);
 
     return [[cols.map(sumColumn), perm]];
   }
 
-  var s = sumPlusPerm(perms3[0]);
+  //var s = sumPlusPerm(perms3[0]);
 
   function answersPlusPerm (first: WheelPos, secLoop: WheelLoop,
                               thrLoop: WheelLoop):
                                   Array<[LoopsPermAnswers, LoopsPermutation]> {
     var perms3 = threeLoopPerms(first, secLoop, thrLoop);
 
-    var s:Array<[LoopsPermAnswers, LoopsPermutation]> =
-            _.flatten(perms3.map(sumPlusPerm));
-
-    return s;
+    return _.flatten(perms3.map(sumPlusPerm));
   }
 
   var a:Array<[LoopsPermAnswers, LoopsPermutation]> =
@@ -237,19 +175,14 @@ window.onload = function () {
     var candidates:Array<[LoopsPermAnswers, LoopsPermutation]> =
                   answersPlusPerm(first, secLoop, thrLoop);
 
-    //function chk (a:[LoopsPermAnswers, LoopsPermutation]): boolean {
-    function chk ([ans, lists]:[LoopsPermAnswers, LoopsPermutation]): boolean {
-      //var [ans, lists] = a;
-
+    function chkForAnswer ([ans, lists]:[LoopsPermAnswers, LoopsPermutation]): boolean {
       // this code has no side effects, such as changing a var in a closure
       var results:Array<WheelPos> = answersLoop.filter( val => _.isEqual(ans, val) );
 
       return results.length > 0;
     }
 
-    var matches:Array<[LoopsPermAnswers, LoopsPermutation]> = candidates.filter(chk);
-
-    return matches;
+    return candidates.filter(chkForAnswer);
   }
 
   var f = findSpecificAnswer(wheelPos1, secLoop, thrLoop, ansLoop);
