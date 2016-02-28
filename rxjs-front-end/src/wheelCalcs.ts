@@ -1,0 +1,70 @@
+/**
+ * Created by Jon on 28/02/16.
+ */
+
+export module WheelCalcs {
+//  interface CalcsIf {
+//    t (s: string): string
+//  }
+
+  declare module _ {
+    interface RIf {
+      drop<T>(n:number, array:T[]): T[];
+      take<T>(n:number, array:T[]): T[];
+      head<T>(array:List<T>): T;
+      //compose<V0, V1, T1>(fn0: (x0: V0, x1: V1) => T1): (x0: V0, x1: V1) => T1;
+      //compose<V0, T1, T2>(fn1: (x: T1) => T2, fn0: (x0: V0) => T1): (x0: V0) => T2;
+    }
+
+    interface List<T> {
+      [index: number]: T;
+      length: number;
+    }
+
+    interface lodashIf {
+      curry<T1, T2, R>(func: (t1: T1, t2: T2) => R):
+        CurriedFunction2<T1, T2, R>;
+      flatten<T>(array: List<T|T[]>): T[];
+      head<T>(array: List<T>): T;
+      zip<T>(...arrays: List<T>[]): T[][];
+      isEqual(value: any, other: any): boolean;
+    }
+
+    interface CurriedFunction1<T1, R> {
+      (): CurriedFunction1<T1, R>;
+      (t1: T1): R;
+    }
+
+    interface CurriedFunction2<T1, T2, R> {
+      (): CurriedFunction2<T1, T2, R>;
+      (t1: T1): CurriedFunction1<T2, R>;
+      (t1: T1, t2: T2): R;
+    }
+  }
+
+  declare var R: _.RIf;
+  declare var _: _.lodashIf;
+
+  export type WheelPos         = Array<number>;
+  export type WheelLoop        = Array<WheelPos>;
+
+  export class Calcs1 { //implements CalcsIf
+
+      constructor() {}
+
+      t (s: string) {
+        return "s";
+      }
+
+    turnWheel(wheel: WheelPos, turns: number): WheelPos {
+      var dropPart = R.drop(turns, wheel);
+      var takePart = R.take(turns, wheel);
+
+      return dropPart.concat(takePart);
+    }
+
+    wheelPos1:WheelPos    = [1, 2, 3];
+    wheelPos2:WheelPos    = [4, 5, 6];
+
+  }
+}

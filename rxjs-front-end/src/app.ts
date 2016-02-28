@@ -5,6 +5,8 @@
 import {Component, FORM_DIRECTIVES, CORE_DIRECTIVES, Observable, EventEmitter} from 'angular2/angular2';
 //import {Http, URLSearchParams} from 'angular2/http';
 //import {JSONP_PROVIDERS, Jsonp} from 'angular2/http';
+//import { Calcs1 } from './wheelCalcs';
+import { WheelCalcs } from './wheelCalcs';
 
 @Component({
     selector: 'my-app',
@@ -41,6 +43,12 @@ export class App {
     this.results2 = [2];
     this.getWheelInputs(this.wheel1input._subject, this.results1);
     this.getWheelInputs(this.wheel2input._subject, this.results2);
+
+    var c = new WheelCalcs.Calcs1();
+
+    var turn1:WheelCalcs.WheelPos = c.turnWheel(c.wheelPos2, 1);
+
+    var i = 2;
   }
 
   getWheelInputs (subject, results) {
