@@ -16,7 +16,8 @@ import {Component, FORM_DIRECTIVES, CORE_DIRECTIVES, Observable, EventEmitter} f
 <input #wheel3 type="text" (keyup)="keyup3($event)">
 <input #wheel4 type="text" (keyup)="keyup4($event)">
 <ul>
-  <li *ng-for="#result of results">{{result.val}}&nbsp;{{result.id}}</li>
+  <li *ng-for="#result of results1">{{result.val}}&nbsp;{{result.id}}</li>
+  <li *ng-for="#result of results2">{{result.val}}&nbsp;{{result.id}}</li>
 </ul>
 <pre>{{ wheel1.value }}</pre>
 </div>
@@ -30,24 +31,31 @@ export class App {
   wheel4input = new EventEmitter();
 
   id: number = 0;
-  results = [];
+  results1 = [];
+  results2 = [];
 
   //constructor(http:Http, jsonp:Jsonp) {
   constructor() {
     this.id = 0;
-    this.results = [];
-    this.wheel1input._subject
+    this.results1 = [1];
+    this.results2 = [2];
+    this.getWheelInputs(this.wheel1input._subject, this.results1);
+    this.getWheelInputs(this.wheel2input._subject, this.results2);
+  }
+
+  getWheelInputs (subject, results) {
+    subject
       .debounceTime(50)
       .distinctUntilChanged()
       //.switchMap(term => {
       //})
       .subscribe((term) => {
-        console.log('term: ' + term);
-        this.results.push({
-          id: this.id++,
-          val: term
-        });
-      },
+          console.log('term: ' + term);
+          results.push({
+            id: this.id++,
+            val: term
+          });
+        },
         error => {
           console.error('Error');
         },
