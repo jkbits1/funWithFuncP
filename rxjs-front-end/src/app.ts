@@ -17,11 +17,18 @@ import { WheelCalcs } from './wheelCalcs';
 <input #wheel2 type="text" (keyup)="keyup2($event)">
 <input #wheel3 type="text" (keyup)="keyup3($event)">
 <input #wheel4 type="text" (keyup)="keyup4($event)">
+<button (click)="testclick($event)">test</button>
 <ul>
   <li *ng-for="#result of results1">{{result.val}}&nbsp;{{result.id}}</li>
   <li *ng-for="#result of results2">{{result.val}}&nbsp;{{result.id}}</li>
 </ul>
 <pre>{{ wheel1.value }}</pre>
+<br>
+1 - {{wheels[0].toString()}}
+<br>
+2- {{wheels[1].toString()}}
+<br>
+2- {{wheels[2].toString()}}
 </div>
 `,
 directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
@@ -36,22 +43,42 @@ export class App {
   results1 = [];
   results2 = [];
 
+  wheels = [[],[], []];
+
   //constructor(http:Http, jsonp:Jsonp) {
   constructor() {
     this.id = 0;
     this.results1 = [1];
     this.results2 = [2];
-    this.getWheelInputs(this.wheel1input._subject, this.results1);
-    this.getWheelInputs(this.wheel2input._subject, this.results2);
+    this.getWheelInputs(
+      this.wheel1input._subject,
+      this.results1, this.wheels, 0);
+    this.getWheelInputs(
+      this.wheel2input._subject,
+      this.results2, this.wheels, 1);
 
-    var c = new WheelCalcs.Calcs1();
+    var calcs = new WheelCalcs.Calcs1();
 
-    var turn1:WheelCalcs.WheelPos = c.turnWheel(c.wheelPos2, 1);
+    //var wheelPos1:WheelCalcs.WheelPos   = [1, 2, 3];
+    this.wheels[0] = [1, 2, 3];
+    //var wheelPos2:WheelCalcs.WheelPos   = [4, 5, 6];
+    this.wheels[1] = [4, 5, 6];
+    //var wheelPos3:WheelCalcs.WheelPos   = [7, 8, 9];
+    this.wheels[2] = [7, 8, 9];
+    var wheelPosAns:WheelCalcs.WheelPos = [12, 15, 18];
+
+    var turn1:WheelCalcs.WheelPos =
+      calcs.turnWheel(this.wheels[1], 1);
+
+    var secLoop: WheelCalcs.WheelLoop =
+      calcs.createWheelLoop(this.wheels[1]);
+    var thrLoop: WheelCalcs.WheelLoop = calcs.createWheelLoop(this.wheels[2]);
+    var ansLoop: WheelCalcs.WheelLoop = calcs.createWheelLoop(wheelPosAns);
 
     var i = 2;
   }
 
-  getWheelInputs (subject, results) {
+  getWheelInputs (subject, results, wheels, wheelPos) {
     subject
       .debounceTime(50)
       .distinctUntilChanged()
@@ -63,6 +90,7 @@ export class App {
             id: this.id++,
             val: term
           });
+          wheels[wheelPos] = term.split(",");
         },
         error => {
           console.error('Error');
@@ -87,5 +115,9 @@ export class App {
 
   keyup4 ($event) {
     this.wheel4input.next($event.currentTarget.value);
+  }
+
+  testclick ($event) {
+
   }
 }
