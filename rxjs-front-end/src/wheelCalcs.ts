@@ -50,11 +50,7 @@ export module WheelCalcs {
 
   export class Calcs1 { //implements CalcsIf
 
-      constructor() {}
-
-      t (s: string) {
-        return "s";
-      }
+    constructor() {}
 
     turnWheel(wheel: WheelPos, turns: number): WheelPos {
       var dropPart = R.drop(turns, wheel);
@@ -63,8 +59,18 @@ export module WheelCalcs {
       return dropPart.concat(takePart);
     }
 
-    wheelPos1:WheelPos    = [1, 2, 3];
-    wheelPos2:WheelPos    = [4, 5, 6];
+    getWheelLoop (positions: Array<WheelPos>, pos:WheelPos, count:number): WheelLoop {
+      if (count === 0) {
+        return [pos].concat(positions);
+      }
+
+      return this.getWheelLoop([this.turnWheel(pos, count)].concat(positions), pos, count - 1);
+    }
+
+    createWheelLoop (initialPos: WheelPos): WheelLoop {
+      return this.getWheelLoop([], initialPos, initialPos.length - 1);
+    }
+
 
   }
 }
