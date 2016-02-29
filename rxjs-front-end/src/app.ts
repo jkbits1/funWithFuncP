@@ -19,8 +19,8 @@ import { WheelCalcs } from './wheelCalcs';
 <input #wheel4 type="text" (keyup)="keyup4($event)">
 <button (click)="testclick($event)">test</button>
 <ul>
-  <li *ng-for="#result of results1">{{result.val}}&nbsp;{{result.id}}</li>
-  <li *ng-for="#result of results2">{{result.val}}&nbsp;{{result.id}}</li>
+  <!--<li *ng-for="#result of results1">{{result.val}}&nbsp;{{result.id}}</li>-->
+  <!--<li *ng-for="#result of results2">{{result.val}}&nbsp;{{result.id}}</li>-->
 </ul>
 <pre>{{ wheel1.value }}</pre>
 <br>
@@ -28,7 +28,9 @@ import { WheelCalcs } from './wheelCalcs';
 <br>
 2- {{wheels[1].toString()}}
 <br>
-2- {{wheels[2].toString()}}
+3- {{wheels[2].toString()}}
+<br>
+4- {{wheels[3].toString()}}
 </div>
 `,
 directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
@@ -42,20 +44,32 @@ export class App {
   id: number = 0;
   results1 = [];
   results2 = [];
+  results3 = [];
+  results4 = [];
 
-  wheels = [[],[], []];
+  wheels = [[],[], [], []];
 
   //constructor(http:Http, jsonp:Jsonp) {
   constructor() {
     this.id = 0;
+
     this.results1 = [1];
     this.results2 = [2];
+    this.results3 = [3];
+    this.results4 = [4];
+
     this.getWheelInputs(
       this.wheel1input._subject,
       this.results1, this.wheels, 0);
     this.getWheelInputs(
       this.wheel2input._subject,
       this.results2, this.wheels, 1);
+    this.getWheelInputs(
+      this.wheel3input._subject,
+      this.results3, this.wheels, 2);
+    this.getWheelInputs(
+      this.wheel4input._subject,
+      this.results4, this.wheels, 3);
 
     var calcs = new WheelCalcs.Calcs1();
 
@@ -101,20 +115,25 @@ export class App {
       );
   }
 
+  passOnEvent (input: EventEmitter, $event: any) {
+    input.next($event.currentTarget.value);
+  }
+
+
   keyup1 ($event) {
-    this.wheel1input.next($event.currentTarget.value);
+    this.passOnEvent(this.wheel1input, $event);
   }
 
   keyup2 ($event) {
-    this.wheel2input.next($event.currentTarget.value);
+    this.passOnEvent(this.wheel2input, $event);
   }
 
   keyup3 ($event) {
-    this.wheel3input.next($event.currentTarget.value);
+    this.passOnEvent(this.wheel3input, $event);
   }
 
   keyup4 ($event) {
-    this.wheel4input.next($event.currentTarget.value);
+    this.passOnEvent(this.wheel4input, $event);
   }
 
   testclick ($event) {
