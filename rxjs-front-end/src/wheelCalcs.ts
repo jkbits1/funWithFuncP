@@ -2,6 +2,8 @@
  * Created by Jon on 28/02/16.
  */
 
+"use strict";
+
 export module WheelCalcs {
 //  interface CalcsIf {
 //    t (s: string): string
@@ -47,6 +49,7 @@ export module WheelCalcs {
 
   export type WheelPos         = Array<number>;
   export type WheelLoop        = Array<WheelPos>;
+  export type LoopsPermutation = Array<WheelPos>;
 
   export class Calcs1 { //implements CalcsIf
 
@@ -71,6 +74,34 @@ export module WheelCalcs {
       return this.getWheelLoop([], initialPos, initialPos.length - 1);
     }
 
+    twoWheelPerms (first: WheelPos, secLoop:WheelLoop): Array<LoopsPermutation> {
+      return secLoop.map(secPos => [first].concat([secPos]));
+    }
+
+    appendTwoWheelPerms (twoWheelPermsLocal: Array<LoopsPermutation>, thrPos: WheelPos) :Array<LoopsPermutation> {
+      return twoWheelPermsLocal.map(twoLoopsPerm => twoLoopsPerm.concat([thrPos]));
+    }
+
+    threeLoopPerms (first: WheelPos, secLoop: WheelLoop, thrLoop: WheelLoop): Array<LoopsPermutation> {
+      var self = this;
+
+      // works with this
+      var twoWheelPermsLocal = self.twoWheelPerms(first, secLoop);
+
+      // AS CURRIED FUNCTION
+      // var addPosToTwoWheelPerms = (_.curry(appendTwoWheelPerms))(twoWheelPermsLocal);
+
+      // AS CLOSURE
+      function addPosToTwoWheelPerms2 (thrPos: WheelPos): Array<LoopsPermutation> {
+        // fails with this
+        return self.appendTwoWheelPerms(twoWheelPermsLocal, thrPos);
+      }
+
+      //return _.flatten(thrLoop.map(addPosToTwoWheelPerms));
+      return _.flatten(thrLoop.map(addPosToTwoWheelPerms2));
+
+      // NOTE: why flatten instead of concat
+    }
 
   }
 }

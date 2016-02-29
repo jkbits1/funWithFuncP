@@ -39,6 +39,11 @@ enum WheelNums { First, Second, Third, Answers };
 4- {{thrLoop}}
 <br>Loop ans
 4- {{ansLoop}}
+<br>Perms 2
+4- {{perms2}}
+<br>Perms 3
+4- {{perms3}}
+
 
 </div>
 `,
@@ -61,6 +66,9 @@ export class App {
   secLoop: WheelCalcs.WheelLoop = [];
   thrLoop: WheelCalcs.WheelLoop = [];
   ansLoop: WheelCalcs.WheelLoop = [];
+
+  perms2: Array<WheelCalcs.LoopsPermutation> = [];
+  perms3: Array<WheelCalcs.LoopsPermutation> = [];
 
   calcs: WheelCalcs.Calcs1 = undefined;
 
@@ -85,8 +93,8 @@ export class App {
     this.wheels[WheelNums.Third]    = [7, 8, 9];
     this.wheels[WheelNums.Answers]  = [12, 15, 18];
 
-    var turn1:WheelCalcs.WheelPos =
-      this.calcs.turnWheel(this.wheels[1], 1);
+    //var turn1:WheelCalcs.WheelPos =
+    //  this.calcs.turnWheel(this.wheels[1], 1);
   }
 
   handleWheelInputs (subject, results, wheelPos) {
@@ -131,9 +139,13 @@ export class App {
   }
 
   updateCalculations () {
-    this.secLoop = this.calcs.createWheelLoop(this.wheels[1]);
-    this.thrLoop = this.calcs.createWheelLoop(this.wheels[2]);
-    this.ansLoop = this.calcs.createWheelLoop(this.wheels[3]);
+    this.secLoop = this.calcs.createWheelLoop(this.wheels[WheelNums.Second]);
+    this.thrLoop = this.calcs.createWheelLoop(this.wheels[WheelNums.Third]);
+    this.ansLoop = this.calcs.createWheelLoop(this.wheels[WheelNums.Answers]);
+
+    this.perms2 = this.calcs.twoWheelPerms(this.wheels[WheelNums.First], this.secLoop);
+    this.perms3 = this.calcs.threeLoopPerms(this.wheels[WheelNums.First],
+      this.secLoop, this.thrLoop);
 
     var i = 2;
   }
