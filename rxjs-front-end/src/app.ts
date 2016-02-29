@@ -8,6 +8,8 @@ import {Component, FORM_DIRECTIVES, CORE_DIRECTIVES, Observable, EventEmitter} f
 //import { Calcs1 } from './wheelCalcs';
 import { WheelCalcs } from './wheelCalcs';
 
+enum WheelNums { First, Second, Third, Answers };
+
 @Component({
     selector: 'my-app',
     //providers: [JSONP_PROVIDERS],
@@ -23,14 +25,21 @@ import { WheelCalcs } from './wheelCalcs';
   <!--<li *ng-for="#result of results2">{{result.val}}&nbsp;{{result.id}}</li>-->
 </ul>
 <pre>{{ wheel1.value }}</pre>
-<br>
+<br>Wheel 1
 1 - {{wheels[0].toString()}}
-<br>
+<br>Wheel 2
 2- {{wheels[1].toString()}}
-<br>
+<br>Wheel 3
 3- {{wheels[2].toString()}}
-<br>
+<br>Wheel 4
 4- {{wheels[3].toString()}}
+<br>Loop 2
+4- {{secLoop}}
+<br>Loop 3
+4- {{thrLoop}}
+<br>Loop ans
+4- {{ansLoop}}
+
 </div>
 `,
 directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
@@ -47,7 +56,13 @@ export class App {
   results3 = [];
   results4 = [];
 
-  wheels = [[],[], [], []];
+  wheels: Array<WheelCalcs.WheelPos> = [[],[], [], []];
+
+  secLoop: WheelCalcs.WheelLoop = [];
+  thrLoop: WheelCalcs.WheelLoop = [];
+  ansLoop: WheelCalcs.WheelLoop = [];
+
+  calcs: WheelCalcs.Calcs1 = undefined;
 
   //constructor(http:Http, jsonp:Jsonp) {
   constructor() {
@@ -58,54 +73,31 @@ export class App {
     this.results3 = [3];
     this.results4 = [4];
 
-    this.getWheelInputs(
-      this.wheel1input._subject,
-      this.results1, this.wheels, 0);
-    this.getWheelInputs(
-      this.wheel2input._subject,
-      this.results2, this.wheels, 1);
-    this.getWheelInputs(
-      this.wheel3input._subject,
-      this.results3, this.wheels, 2);
-    this.getWheelInputs(
-      this.wheel4input._subject,
-      this.results4, this.wheels, 3);
+    this.handleWheelInputs(this.wheel1input._subject, this.results1, WheelNums.First);
+    this.handleWheelInputs(this.wheel2input._subject, this.results2, WheelNums.Second);
+    this.handleWheelInputs(this.wheel3input._subject, this.results3, WheelNums.Third);
+    this.handleWheelInputs(this.wheel4input._subject, this.results4, WheelNums.Answers);
 
-    var calcs = new WheelCalcs.Calcs1();
+    this.calcs = new WheelCalcs.Calcs1();
 
-    //var wheelPos1:WheelCalcs.WheelPos   = [1, 2, 3];
-    this.wheels[0] = [1, 2, 3];
-    //var wheelPos2:WheelCalcs.WheelPos   = [4, 5, 6];
-    this.wheels[1] = [4, 5, 6];
-    //var wheelPos3:WheelCalcs.WheelPos   = [7, 8, 9];
-    this.wheels[2] = [7, 8, 9];
-    var wheelPosAns:WheelCalcs.WheelPos = [12, 15, 18];
+    this.wheels[WheelNums.First]    = [1, 2, 3];
+    this.wheels[WheelNums.Second]   = [4, 5, 6];
+    this.wheels[WheelNums.Third]    = [7, 8, 9];
+    this.wheels[WheelNums.Answers]  = [12, 15, 18];
 
     var turn1:WheelCalcs.WheelPos =
-      calcs.turnWheel(this.wheels[1], 1);
-
-    var secLoop: WheelCalcs.WheelLoop =
-      calcs.createWheelLoop(this.wheels[1]);
-    var thrLoop: WheelCalcs.WheelLoop = calcs.createWheelLoop(this.wheels[2]);
-    var ansLoop: WheelCalcs.WheelLoop = calcs.createWheelLoop(wheelPosAns);
-
-    var i = 2;
+      this.calcs.turnWheel(this.wheels[1], 1);
   }
 
-  getWheelInputs (subject, results, wheels, wheelPos) {
+  handleWheelInputs (subject, results, wheelPos) {
     subject
       .debounceTime(50)
       .distinctUntilChanged()
       //.switchMap(term => {
       //})
-      .subscribe((term) => {
-          console.log('term: ' + term);
-          results.push({
-            id: this.id++,
-            val: term
-          });
-          wheels[wheelPos] = term.split(",");
-        },
+      .subscribe(
+        // this returns a fn that handles input
+        this.updateModel(this, results, wheelPos),
         error => {
           console.error('Error');
         },
@@ -113,6 +105,37 @@ export class App {
           console.log('Completed!');
         }
       );
+  }
+
+  // NOTE: this may be an abstraction too far, but keen to show this fn name
+  //       Especially, the self seems too fiddly
+  updateModel (self, results, wheelPos) {
+
+    function processInput (term) {
+      console.log('term: ' + term);
+      results.push({
+        id: this.id++,
+        val: term
+      });
+      self.wheels[wheelPos] = term.split(",");
+    }
+
+    // need a better name
+    function manageModel (term) {
+      processInput(term);
+
+      self.updateCalculations();
+    }
+
+    return manageModel;
+  }
+
+  updateCalculations () {
+    this.secLoop = this.calcs.createWheelLoop(this.wheels[1]);
+    this.thrLoop = this.calcs.createWheelLoop(this.wheels[2]);
+    this.ansLoop = this.calcs.createWheelLoop(this.wheels[3]);
+
+    var i = 2;
   }
 
   passOnEvent (input: EventEmitter, $event: any) {
